@@ -3,6 +3,20 @@ require 'spec_helper'
 require 'rouge'
 
 describe Rouge::Cons do
+  describe "the constructor" do
+    it { expect { Rouge::Cons.new(1, Rouge::Cons::Empty)
+                }.to_not raise_exception }
+
+    it { expect { Rouge::Cons.new(1, Rouge::Cons[:x])
+                }.to_not raise_exception }
+
+    it { expect { Rouge::Cons.new(1, Rouge::Seq::Array.new([], 0))
+                }.to_not raise_exception }
+
+    it { expect { Rouge::Cons.new(1, "blah")
+                }.to raise_exception(ArgumentError) }
+  end
+
   describe "the multi-constructor" do
     it "should create a Cons for each element" do
       Rouge::Cons[].should eq Rouge::Cons::Empty
@@ -23,6 +37,19 @@ describe Rouge::Cons do
       Rouge::Cons[1, 2].inspect.should eq "Rouge::Cons[1, 2]"
       Rouge::Cons[1, 2, 3].inspect.should eq "Rouge::Cons[1, 2, 3]"
       Rouge::Cons[1, 2, 3].tail.inspect.should eq "Rouge::Cons[2, 3]"
+    end
+  end
+
+  describe "the ISeq implementation" do
+    let(:cons) { Rouge::Cons[1, 2, 3] }
+
+    describe "the first implementation" do
+      it { cons.first.should eq 1 }
+    end
+
+    describe "the next implementation" do
+      it { cons.next.should be_an_instance_of Rouge::Cons }
+      it { cons.next.should eq Rouge::Cons[2, 3] }
     end
   end
 
