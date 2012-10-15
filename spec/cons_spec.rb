@@ -4,7 +4,7 @@ require 'rouge'
 
 describe Rouge::Cons do
   describe "the constructor" do
-    it { expect { Rouge::Cons.new(1, Rouge::Cons::Empty)
+    it { expect { Rouge::Cons.new(1, Rouge::Seq::Empty)
                 }.to_not raise_exception }
 
     it { expect { Rouge::Cons.new(1, Rouge::Cons[:x])
@@ -19,14 +19,14 @@ describe Rouge::Cons do
 
   describe "the multi-constructor" do
     it "should create a Cons for each element" do
-      Rouge::Cons[].should eq Rouge::Cons::Empty
-      Rouge::Cons[1].should eq Rouge::Cons.new(1, Rouge::Cons::Empty)
+      Rouge::Cons[].should eq Rouge::Seq::Empty
+      Rouge::Cons[1].should eq Rouge::Cons.new(1, Rouge::Seq::Empty)
       Rouge::Cons[1, 2].
-          should eq Rouge::Cons.new(1, Rouge::Cons.new(2, Rouge::Cons::Empty))
+          should eq Rouge::Cons.new(1, Rouge::Cons.new(2, Rouge::Seq::Empty))
       Rouge::Cons[1, 2, 3].
           should eq Rouge::Cons.new(1,
                     Rouge::Cons.new(2,
-                    Rouge::Cons.new(3, Rouge::Cons::Empty)))
+                    Rouge::Cons.new(3, Rouge::Seq::Empty)))
     end
   end
 
