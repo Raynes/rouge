@@ -6,14 +6,14 @@
 
 (def seq (fn [coll]
            ; XXX right now this just coerces to a Cons
-           (let [s (apply .[] ruby/Rouge.Cons (.to_a coll))]
-             (if (.== s ruby/Rouge.Cons.Empty)
+           (let [s (apply .[] ruby/Rouge.Seq.Cons (.to_a coll))]
+             (if (.== s ruby/Rouge.Seq.Empty)
                nil
                s))))
 
 (def concat (fn [& lists]
               ; XXX lazy seq
-              (seq (.inject (.map lists | .to_a) | .+))))
+              (seq (.inject (.to_a (.map lists | .to_a)) | .+))))
 
 (def list (fn [& elements]
             elements))
@@ -30,7 +30,7 @@
   (.to_a args))
 
 (defn reduce [f coll]
-  (.inject coll | f))
+  (.inject (.to_a coll) | f))
 
 (defmacro when [cond & body]
   `(if ~cond
@@ -42,11 +42,11 @@
   (.map coll | f))
 
 (defn str [& args]
-  (let [args (map .to_s args)]
+  (let [args (.to_a (map .to_s args))]
     (.join args "")))
 
 (defn pr-str [& args]
-  (let [args (map #(.print ruby/Rouge % (ruby/String.)) args)]
+  (let [args (.to_a (map #(.print ruby/Rouge % (ruby/String.)) args))]
     (.join args " ")))
 
 (defn print [& args]
@@ -60,12 +60,12 @@
 
 (defn or [& exprs]
   ; XXX NOT SHORT CIRCUITING!
-  (.find exprs | [e] e))
+  (.find (.to_a exprs) | [e] e))
 
 (defn and [& exprs]
   ; XXX NOT SHORT CIRCUITING!
   ; Also not Clojurish: doesn't return falsey value find.
-  (if (.all? exprs | [e] e)
+  (if (.all? (.to_a exprs) | [e] e)
     (.last (.to_a exprs))))
 
 (defn class [object]
@@ -74,8 +74,8 @@
 (defn sequential? [coll]
   (and
     (or (.== (class coll) ruby/Array)
-        (.== (class coll) ruby/Rouge.Cons)
-        (.== coll ruby/Rouge.Cons.Empty))
+        (.== (class coll) ruby/Rouge.Seq.Cons)
+        (.== coll ruby/Rouge.Seq.Empty))
     true))
 
 (defn = [a b]
@@ -113,17 +113,17 @@
 
 (defn cons [head tail]
   ; XXX lazy seq
-  (ruby/Rouge.Cons. head tail))
+  (ruby/Rouge.Seq.Cons. head tail))
 
 (defn range [from til]
   ; XXX this will blow so many stacks
   (if (= from til)
-    ruby/Rouge.Cons.Empty
+    ruby/Rouge.Seq.Empty
     (cons from (range (+ 1 from) til))))
 
 (defn seq? [object]
-  (or (= (class object) ruby/Rouge.Cons)
-      (= object ruby/Rouge.Cons.Empty)))
+  (or (= (class object) ruby/Rouge.Seq.Cons)
+      (= object ruby/Rouge.Seq.Empty)))
 
 (def *ns* 'user)
 
@@ -201,8 +201,8 @@
     (let [c (class coll)
           hd (first xs)
           tl (rest xs)]
-      (if (= c ruby/Rouge.Cons)
-        (apply conj (ruby/Rouge.Cons coll hd) tl)
+      (if (= c ruby/Rouge.Seq.Cons)
+        (apply conj (ruby/Rouge.Seq.Cons coll hd) tl)
         (apply conj (.push (.dup coll) hd) tl)))))
 
 (defn get [map key] ; and [map key not-found]
